@@ -157,7 +157,7 @@ jobs:
           # Run Opengrep with the Trail of Bits ruleset
           set +e
           export PATH="$HOME/.opengrep/cli/latest:$PATH"
-          opengrep scan --config "p/trailofbits" .
+          opengrep scan --config "p/trailofbits" src
           og_exit=$?
 
           echo "Opengrep exited with code: ${og_exit}"
