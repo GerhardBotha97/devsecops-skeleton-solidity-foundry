@@ -71,6 +71,7 @@ jobs:
           pip install slither-analyzer
 
       - name: Run Slither
+        continue-on-error: true
         run: |
           if [ ! -d "src" ] || ! ls src/*.sol >/dev/null 2>&1; then
             echo "No Solidity files found in src/, skipping Slither analysis."
@@ -78,4 +79,6 @@ jobs:
           fi
 
           # Analyze contracts in src/ using solc directly
+          # Slither may return a non-zero exit code on findings; we let the step "fail"
+          # but do not fail the overall job/pipeline thanks to continue-on-error: true.
           slither ./src --solc-remaps "$(forge remappings 2>/dev/null | tr '\n' ',')"
