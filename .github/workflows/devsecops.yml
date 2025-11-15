@@ -2,9 +2,9 @@ name: DevSecOps CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -156,6 +156,7 @@ jobs:
 
           # Run Opengrep with the Trail of Bits ruleset
           set +e
+          export PATH="$HOME/.opengrep/cli/latest:$PATH"
           opengrep scan --config "p/trailofbits" .
           og_exit=$?
 
