@@ -82,3 +82,41 @@ jobs:
           # Slither may return a non-zero exit code on findings; we let the step "fail"
           # but do not fail the overall job/pipeline thanks to continue-on-error: true.
           slither ./src --solc-remaps "$(forge remappings 2>/dev/null | tr '\n' ',')"
+
+  aderyn-analysis:
+    name: Static Analysis (Aderyn)
+    runs-on: ubuntu-latest
+    needs: foundry-ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Build contracts (Foundry)
+        run: forge build
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install Aderyn
+        run: cargo install aderyn
+
+      - name: Run Aderyn
+        continue-on-error: true
+        run: |
+          if [ ! -d "src" ] || ! ls src/*.sol >/dev/null 2>&1; then
+            echo "No Solidity files found in src/, skipping Aderyn analysis."
+            exit 0
+          fi
+
+          # Run Aderyn against the Foundry project in the current directory
+          aderyn .
