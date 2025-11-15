@@ -111,7 +111,6 @@ jobs:
         run: cargo install aderyn
 
       - name: Run Aderyn
-        continue-on-error: true
         run: |
           if [ ! -d "src" ] || ! ls src/*.sol >/dev/null 2>&1; then
             echo "No Solidity files found in src/, skipping Aderyn analysis."
@@ -119,4 +118,18 @@ jobs:
           fi
 
           # Run Aderyn against the Foundry project in the current directory
+          # Ensure the pipeline does not fail, and print the generated report.md
+          set +e
           aderyn .
+          aderyn_exit=$?
+
+          if [ -f report.md ]; then
+            echo "===== Aderyn Report (report.md) ====="
+            cat report.md
+          else
+            echo "Aderyn report.md not found."
+          fi
+
+          echo "Aderyn exited with code: ${aderyn_exit}"
+          # Do not fail the pipeline based on Aderyn's exit code
+          exit 0
