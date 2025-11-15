@@ -133,3 +133,32 @@ jobs:
           echo "Aderyn exited with code: ${aderyn_exit}"
           # Do not fail the pipeline based on Aderyn's exit code
           exit 0
+
+  opengrep-analysis:
+    name: SAST (OpenGrep Trail of Bits)
+    runs-on: ubuntu-latest
+    needs: foundry-ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Opengrep
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+
+      - name: Run Opengrep (Trail of Bits)
+        run: |
+          if [ ! -d "src" ] || ! ls src/*.sol >/dev/null 2>&1; then
+            echo "No Solidity files found in src/, skipping Opengrep analysis."
+            exit 0
+          fi
+
+          # Run Opengrep with the Trail of Bits ruleset
+          set +e
+          opengrep scan --config "p/trailofbits" .
+          og_exit=$?
+
+          echo "Opengrep exited with code: ${og_exit}"
+          # Do not fail the pipeline based on Opengrep's exit code
+          exit 0
